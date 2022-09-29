@@ -1,15 +1,19 @@
 #include "Oled.h"
 
 #include "DHT.h"
- 
-#define DHTPIN 15 // pino que estamos conectado
-#define DHTTYPE DHT11 // DHT 11
+#include <DHT_U.h>
 
-#define potenciometerPin 4
-#define motorPin 16
+#define DHTPIN A1      // pino que estamos conectado
+#define DHTTYPE DHT11  // DHT 11
+
+#define potenciometerPin A0
+#define motorPin 5
+
 
 Oled oled;
-
+int potMax = 105;
+int potMin = 1;
+float lastValue = 0;
 DHT dht(DHTPIN, DHTTYPE);
 
 int potData;
@@ -19,8 +23,6 @@ void setup() {
   pinMode(potenciometerPin, INPUT);
   pinMode(motorPin, OUTPUT);
   oled.begin();
-  
-  
 }
 
 
@@ -28,18 +30,32 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   potData = analogRead(potenciometerPin);
-  Serial.println(potData);
-  Serial.println(dht.readTemperature());
-  int dataFilter = map(potData, 0, 4095, 0, 255);
+ 
+  int dataPercent = map(potData, potMin, potMax, 0, 100);
+  int dataFilter = map(potData, potMin, potMax, 0, 255);
+  if(dataPercent > 100)
+    dataPercent = 100; 
+  float exponencial = pow(dataPercent, 1.505);
+  if(dataFilter < 20)
+    dataFilter = 0;
+  else if(dataFilter > 255)
+    dataFilter = 255;
   analogWrite(motorPin, dataFilter);
-  int dataPercent = map(potData, 0, 4095, 0, 100);
-   float t = dht.readTemperature();
-   if (isnan(t)) 
-  {
-    Serial.println("Failed to read from DHT");
-     oled.setDisplay(dataPercent, -1);
-  } 
-  else
-     oled.setDisplay(dataPercent, t);
-  delay(100);
+Serial.println(dataFilter);
+Serial.print("Pot: ");
+Serial.println(potData);
+  
+
+  Serial.println(lastValue);
+
+  oled.setDisplay(dataPercent, lastValue);
+  float t = dht.readTemperature();
+
+  if (!isnan(t)) {
+    if(t < 0)
+      t*= -1;
+    lastValue = t;
+  }
+
+  
 }
