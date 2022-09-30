@@ -12,7 +12,7 @@
 
 Oled oled;
 int potMax = 105;
-int potMin = 1;
+int potMin = 5;
 float lastValue = 0;
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -35,13 +35,16 @@ void loop() {
   int dataFilter = map(potData, potMin, potMax, 0, 255);
   if(dataPercent > 100)
     dataPercent = 100; 
+  if(dataPercent < 5)
+    dataPercent = 0;
   float exponencial = pow(dataPercent, 1.505);
-  if(dataFilter < 20)
+  Serial.println(dataFilter);
+  if(dataFilter < 5)
     dataFilter = 0;
   else if(dataFilter > 255)
     dataFilter = 255;
   analogWrite(motorPin, dataFilter);
-Serial.println(dataFilter);
+
 Serial.print("Pot: ");
 Serial.println(potData);
   
