@@ -39,7 +39,7 @@ void loop() {
     dataPercent = 0;
   float exponencial = pow(dataPercent, 1.505);
   Serial.println(dataFilter);
-  if(dataFilter < 5)
+  if(dataFilter < 15)
     dataFilter = 0;
   else if(dataFilter > 255)
     dataFilter = 255;
@@ -59,6 +59,6 @@ Serial.println(potData);
       t*= -1;
     lastValue = t;
   }
-
+delay(100);
   
 }
